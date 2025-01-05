@@ -1,8 +1,11 @@
 use crate::constants::*;
-use crate::entities::*;
-use crate::grid_position::*;
-use ggez::{event, graphics, Context, GameResult};
+use crate::directions::Direction;
+use crate::entities::{Food, Snake};
+use crate::grid_position::GridPosition;
+use ggez::{event, graphics, input::keyboard::KeyInput, Context, GameResult};
 use oorandom::Rand32;
+
+pub const TARGET_FPS: u32 = 8;
 
 pub struct GameState {
     food: Food,
@@ -49,7 +52,19 @@ impl GameState {
 }
 
 impl event::EventHandler for GameState {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult {
+    fn update(&mut self, ctx: &mut Context) -> GameResult {
+        while ctx.time.check_update_time(TARGET_FPS) {
+            let ate = self.snake.update(&self.food);
+
+            if ate {
+                self.food = Food::new(GridPosition::random(
+                    &mut self.rng,
+                    GRID_SIZE.0,
+                    GRID_SIZE.1,
+                ));
+            }
+        }
+
         Ok(())
     }
 
@@ -61,6 +76,14 @@ impl event::EventHandler for GameState {
         self.draw_grid(&mut canvas, ctx)?;
 
         canvas.finish(ctx)?;
+        ggez::timer::yield_now();
+        Ok(())
+    }
+
+    fn key_down_event(&mut self, _ctx: &mut Context, input: KeyInput, _repeat: bool) -> GameResult {
+        if let Some(dir) = input.keycode.and_then(Direction::from_keycode) {
+            self.snake.set_dir(dir);
+        }
         Ok(())
     }
 }

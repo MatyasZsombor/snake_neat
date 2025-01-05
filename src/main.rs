@@ -1,4 +1,5 @@
 mod constants;
+mod directions;
 mod entities;
 mod game_state;
 mod grid_position;

@@ -1,11 +1,11 @@
 use std::collections::VecDeque;
 
-use crate::grid_position::GridPosition;
+use crate::{directions::Direction, grid_position::GridPosition};
 use ggez::graphics::{self, Canvas};
 
 pub const FOOD_COLOR: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 pub const HEAD_COLOR: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
-pub const BODY_COLOR: [f32; 4] = [0.3, 0.3, 0.3, 1.0];
+pub const BODY_COLOR: [f32; 4] = [0.3, 0.3, 0.0, 1.0];
 
 pub struct Food {
     pos: GridPosition,
@@ -29,14 +29,20 @@ impl Food {
 pub struct Snake {
     head: GridPosition,
     body: VecDeque<GridPosition>,
+    dir: Direction,
+    next_dir: Option<Direction>,
+    last_update_dir: Direction,
 }
 
 impl Snake {
     pub fn new(pos: GridPosition) -> Self {
-        let mut body = VecDeque::new();
-        body.push_back(GridPosition::new(pos.x - 1, pos.y));
-
-        Self { head: pos, body }
+        Self {
+            head: pos,
+            body: VecDeque::new(),
+            dir: Direction::Right,
+            next_dir: None,
+            last_update_dir: Direction::Right,
+        }
     }
 
     pub fn draw(&self, canvas: &mut Canvas) {
@@ -55,5 +61,32 @@ impl Snake {
                 .dest_rect(self.head.into())
                 .color(HEAD_COLOR),
         );
+    }
+
+    pub fn update(&mut self, food: &Food) -> bool {
+        if self.last_update_dir == self.dir && self.next_dir.is_some() {
+            self.dir = self.next_dir.unwrap();
+            self.next_dir = None;
+        }
+
+        self.body.push_front(self.head);
+        self.head = GridPosition::new_from_move(self.head, self.dir);
+
+        let ate = self.head == food.pos;
+
+        if !ate {
+            self.body.pop_back();
+        }
+
+        self.last_update_dir = self.dir;
+        ate
+    }
+
+    pub fn set_dir(&mut self, dir: Direction) {
+        if self.dir != self.last_update_dir && dir.inverse() != self.dir {
+            self.next_dir = Some(dir);
+        } else if dir.inverse() != self.last_update_dir {
+            self.dir = dir;
+        }
     }
 }

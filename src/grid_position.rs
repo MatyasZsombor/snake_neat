@@ -1,4 +1,6 @@
+use crate::constants::GRID_SIZE;
 use crate::constants::SQUARE_SIZE;
+use crate::directions::Direction;
 use ggez::graphics;
 use oorandom::Rand32;
 
@@ -19,15 +21,24 @@ impl GridPosition {
             rng.rand_range(0..(max_y as u32)) as i32,
         )
     }
+
+    pub fn new_from_move(pos: GridPosition, dir: Direction) -> Self {
+        match dir {
+            Direction::Up => GridPosition::new(pos.x, (pos.y - 1).rem_euclid(GRID_SIZE.1)),
+            Direction::Down => GridPosition::new(pos.x, (pos.y + 1).rem_euclid(GRID_SIZE.1)),
+            Direction::Left => GridPosition::new((pos.x - 1).rem_euclid(GRID_SIZE.0), pos.y),
+            Direction::Right => GridPosition::new((pos.x + 1).rem_euclid(GRID_SIZE.0), pos.y),
+        }
+    }
 }
 
 impl From<GridPosition> for graphics::Rect {
     fn from(pos: GridPosition) -> Self {
         graphics::Rect::new_i32(
-            pos.x * SQUARE_SIZE.0 as i32,
-            pos.y * SQUARE_SIZE.1 as i32,
-            SQUARE_SIZE.0 as i32,
-            SQUARE_SIZE.1 as i32,
+            pos.x * SQUARE_SIZE.0,
+            pos.y * SQUARE_SIZE.1,
+            SQUARE_SIZE.0,
+            SQUARE_SIZE.1,
         )
     }
 }
