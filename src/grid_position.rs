@@ -4,8 +4,8 @@ use oorandom::Rand32;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct GridPosition {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl GridPosition {

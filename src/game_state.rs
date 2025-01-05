@@ -6,6 +6,7 @@ use oorandom::Rand32;
 
 pub struct GameState {
     food: Food,
+    snake: Snake,
     rng: Rand32,
 }
 
@@ -17,20 +18,20 @@ impl GameState {
 
         GameState {
             rng,
-            food: Food::new(GridPosition::random(
-                &mut rng,
-                GRID_SIZE.0 as i32,
-                GRID_SIZE.1 as i32,
-            )),
+            food: Food::new(GridPosition::random(&mut rng, GRID_SIZE.0, GRID_SIZE.1)),
+            snake: Snake::new(GridPosition::new(GRID_SIZE.0 / 4, GRID_SIZE.1 / 2)),
         }
     }
 
     fn draw_grid(&mut self, canvas: &mut graphics::Canvas, ctx: &mut Context) -> GameResult {
-        for row in 0..GRID_SIZE.1 as i32 {
-            for col in 0..GRID_SIZE.0 as i32 {
-                let (x, y) = (col as f32 * SQUARE_SIZE.0, row as f32 * SQUARE_SIZE.1);
+        for row in 0..GRID_SIZE.1 {
+            for col in 0..GRID_SIZE.0 {
+                let (x, y) = (
+                    col as f32 * SQUARE_SIZE.0 as f32,
+                    row as f32 * SQUARE_SIZE.1 as f32,
+                );
 
-                let square = graphics::Rect::new(x, y, SQUARE_SIZE.0, SQUARE_SIZE.1);
+                let square = graphics::Rect::new(x, y, SQUARE_SIZE.0 as f32, SQUARE_SIZE.1 as f32);
 
                 let border_color = graphics::Color::from_rgb(128, 128, 128);
 
@@ -56,6 +57,7 @@ impl event::EventHandler for GameState {
         let mut canvas = graphics::Canvas::from_frame(ctx, graphics::Color::BLACK);
 
         self.food.draw(&mut canvas);
+        self.snake.draw(&mut canvas);
         self.draw_grid(&mut canvas, ctx)?;
 
         canvas.finish(ctx)?;

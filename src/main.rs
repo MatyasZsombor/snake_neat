@@ -10,7 +10,10 @@ use ggez::event;
 fn main() {
     let (mut ctx, event_loop) = ggez::ContextBuilder::new("Snake", "Matyas Zsombor")
         .window_setup(ggez::conf::WindowSetup::default().title("SNAKE"))
-        .window_mode(ggez::conf::WindowMode::default().dimensions(SCREEN_SIZE.0, SCREEN_SIZE.1))
+        .window_mode(
+            ggez::conf::WindowMode::default()
+                .dimensions(SCREEN_SIZE.0 as f32, SCREEN_SIZE.1 as f32),
+        )
         .build()
         .expect("Failed to create a ggez context!");
 
