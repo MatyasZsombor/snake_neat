@@ -1,11 +1,11 @@
 use std::collections::VecDeque;
 
-use crate::{directions::Direction, grid_position::GridPosition};
+use crate::{constants::GRID_SIZE, directions::Direction, grid_position::GridPosition};
 use ggez::graphics::{self, Canvas};
 
 pub const FOOD_COLOR: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 pub const HEAD_COLOR: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
-pub const BODY_COLOR: [f32; 4] = [0.3, 0.3, 0.0, 1.0];
+pub const BODY_COLOR: [f32; 4] = [0.0, 0.0, 1.0, 1.0];
 
 pub struct Food {
     pos: GridPosition,
@@ -32,6 +32,7 @@ pub struct Snake {
     dir: Direction,
     next_dir: Option<Direction>,
     last_update_dir: Direction,
+    pub ate: bool,
 }
 
 impl Snake {
@@ -42,6 +43,7 @@ impl Snake {
             dir: Direction::Right,
             next_dir: None,
             last_update_dir: Direction::Right,
+            ate: false,
         }
     }
 
@@ -72,14 +74,19 @@ impl Snake {
         self.body.push_front(self.head);
         self.head = GridPosition::new_from_move(self.head, self.dir);
 
-        let ate = self.head == food.pos;
+        self.ate = self.head == food.pos;
 
-        if !ate {
+        if !self.ate {
             self.body.pop_back();
         }
 
         self.last_update_dir = self.dir;
-        ate
+
+        self.body.contains(&self.head)
+            || self.head.x >= GRID_SIZE.0
+            || self.head.x < 0
+            || self.head.y >= GRID_SIZE.1
+            || self.head.y < 0
     }
 
     pub fn set_dir(&mut self, dir: Direction) {

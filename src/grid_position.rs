@@ -1,4 +1,3 @@
-use crate::constants::GRID_SIZE;
 use crate::constants::SQUARE_SIZE;
 use crate::directions::Direction;
 use ggez::graphics;
@@ -24,10 +23,10 @@ impl GridPosition {
 
     pub fn new_from_move(pos: GridPosition, dir: Direction) -> Self {
         match dir {
-            Direction::Up => GridPosition::new(pos.x, (pos.y - 1).rem_euclid(GRID_SIZE.1)),
-            Direction::Down => GridPosition::new(pos.x, (pos.y + 1).rem_euclid(GRID_SIZE.1)),
-            Direction::Left => GridPosition::new((pos.x - 1).rem_euclid(GRID_SIZE.0), pos.y),
-            Direction::Right => GridPosition::new((pos.x + 1).rem_euclid(GRID_SIZE.0), pos.y),
+            Direction::Up => GridPosition::new(pos.x, pos.y - 1),
+            Direction::Down => GridPosition::new(pos.x, pos.y + 1),
+            Direction::Left => GridPosition::new(pos.x - 1, pos.y),
+            Direction::Right => GridPosition::new(pos.x + 1, pos.y),
         }
     }
 }

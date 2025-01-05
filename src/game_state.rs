@@ -54,9 +54,12 @@ impl GameState {
 impl event::EventHandler for GameState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
         while ctx.time.check_update_time(TARGET_FPS) {
-            let ate = self.snake.update(&self.food);
+            if self.snake.update(&self.food) {
+                println!("GAME OVER!");
+                ctx.request_quit();
+            }
 
-            if ate {
+            if self.snake.ate {
                 self.food = Food::new(GridPosition::random(
                     &mut self.rng,
                     GRID_SIZE.0,
